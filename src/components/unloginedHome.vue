@@ -8,9 +8,10 @@
         </a>
         
         <span class="title">同济大学实验课程管理</span>
-        <router-link to="/personalInfo"><span class="info">个人信息</span></router-link>
-        <router-link to="/myClass"><span class="class">我的课程</span></router-link>
-        <router-link to="/messageCenter"><span class="message">通知中心</span></router-link>
+        <router-link to="/login"><b class="login">请先登录</b></router-link>
+        <router-link to="/login"><span class="info">个人信息</span></router-link>
+        <router-link to="/login"><span class="class">我的课程</span></router-link>
+        <router-link to="/login"><span class="message">通知中心</span></router-link>
         <span class="gang">|</span>
         <div class="profile">
         <el-avatar :size="size" :fit="fit" :src="circleUrl" @error="errorHandler">
@@ -47,31 +48,24 @@
           <el-table-column prop="date" label="日期"/>
         </el-table>
         </div>
-        <router-link to="/messageCenter">
+        <router-link to="/login">
         <span>查看全部通知</span>
-        </router-link> 
+        </router-link>         
       </el-main>
       <br/><br/>
-      <el-footer>footer</el-footer>
+      <el-footer>Footer</el-footer>
     </el-container>
   </div>
 </template>
 
-// container css for each page
-<style>
-html,
-body,
-#app,
-.MyHome,
-.el-container{
-  padding:0px;
-  margin:0px;
-  height:100%;
-}
-</style>
-
 // indepedent css
 <style scoped>
+.el-footer {
+  background-color: #ced2d6;
+  color: var(--el-text-color-primary);
+  text-align: center;
+  line-height: 60px;
+}
 .el-header{
   background-color:#427fc5;
   height: 100px!important;
@@ -82,12 +76,7 @@ body,
   color: var(--el-text-color-primary);
   text-align: center;
 }
-.el-footer {
-  background-color: #ced2d6;
-  color: var(--el-text-color-primary);
-  text-align: center;
-  line-height: 60px;
-}
+
 body > .el-container {
   margin-bottom: 40px;
 }
@@ -112,6 +101,14 @@ body > .el-container {
   position:absolute;
   top:35%;
   left:20%
+}
+.login{
+  color:black;
+  font-size: 14px;
+  font-family: "Microsoft YaHei";
+  position:absolute;
+  top:45%;
+  left:75%
 }
 .info{
   color:white;
@@ -214,7 +211,8 @@ body > .el-container {
   export default {
     data () {
       return {
-        circleUrl: require("../assets/profile2.jpg"),
+        url: "http://139.224.65.105:9090/api",
+        circleUrl: require("../assets/unlogined.jpg"),
         size: "small",
         tableData: [],
       }
@@ -223,6 +221,21 @@ body > .el-container {
       errorHandler() {
         return true
       },
+    mounted(){
+        const btn = () => {
+            this.axios.get(this.url+'/notice/system')
+            .then((response) => {
+                for(let i = 0; i < Math.max(5, length(response.data)); i++){
+                    let item = response.data.data[i]; 
+                    this.tableData.push(item) 
+                }
+                })
+                .catch(function (error) {
+                     console.log(error);
+                     })
+        }
+        btn()
+    }
   }
 }
 </script>
