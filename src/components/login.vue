@@ -2,16 +2,13 @@
   <div class="login-page">
     <el-form ref="form" :model="form" :rules="rules" class="login-box">
       <!-- 头部 -->
-			<div class="login-head">
-				<img class="login-logo"
-          src="../assets/TongJiLogo.png"
-          alt="tjlogo"
-        />
-        <br/>
-        <br/>
-				<h3 class="login-title">同济大学课程实验中心</h3>
-				<!-- <el-image src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg" fit="fit"></el-image> -->
-			</div>
+      <div class="login-head">
+        <img class="login-logo" src="../assets/TongJiLogo.png" alt="tjlogo" />
+        <br />
+        <br />
+        <h3 class="login-title">同济大学课程实验中心</h3>
+        <!-- <el-image src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg" fit="fit"></el-image> -->
+      </div>
       <!-- 分割线 -->
       <el-divider></el-divider>
       <!-- 表单项 -->
@@ -57,7 +54,7 @@ export default {
         name: "",
         password: "",
         identity: "",
-				type:-1
+        type: -1,
       },
       rules: {
         name: [
@@ -88,37 +85,43 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-					if(this.form.identity=="学生"){
-						this.form.type = 2
-					}
-					else if(this.form.identity=="教师"){
-						this.form.type = 1
-					}
-					else if(this.form.identity=="管理员"){
-						this.form.type = 0
-					}
-					this.axios.post('http://139.224.65.105:9090/api/sys/login',{
-						"id":this.form.name,
-						"password":this.form.password,
-						"type":this.form.type
-						}).
-						then((response) => {
-							console.log(response.data)
-							if (response.data.code == 200) {
-								this.$router.push("/Home");	
-							}
-							else {
-								this.$message({
-									message: response.data.code,
-									type: "warning",
-								});
-								return false;
-							}
-						})
+          if (this.form.identity == "学生") {
+            this.form.type = 2;
+          } 
+          else if (this.form.identity == "教师") {
+            this.form.type = 1;
+          } 
+          else if (this.form.identity == "管理员") {
+            this.form.type = 0;
+          }
+          this.axios
+            .post("http://139.224.65.105:9090/api/user/login", {
+              id: this.form.name,
+              password: this.form.password,
+              type: this.form.type,
+            })
+            .then((response) => {
+              console.log(response.data);
+              if (response.data.code == 200) {
+                this.$message({
+                  message: response.data.message,
+                  type: "success",
+                });
+                this.$router.push("/Home");
+                return true;
+              } 
+              else {
+                this.$message({
+                  message: response.data.message,
+                  type: "error",
+                });
+                return false;
+              }
+            });
         } 
-				else {
+        else {
           this.$message({
-            message: "账号或密码错误",
+            message: "请填写完整信息",
             type: "warning",
           });
           return false;
@@ -185,12 +188,12 @@ export default {
 
 <style lang="scss" scoped>
 .login-page {
-	padding:20px;
-  margin:0px;
-	background-size: 100%;
-	// background-color: #409EFF;
-	// background-image: url('../assets/bush.png');
-	background-repeat: repeat;
+  padding: 20px;
+  margin: 0px;
+  background-size: 100%;
+  // background-color: #409EFF;
+  // background-image: url('../assets/bush.png');
+  background-repeat: repeat;
 }
 .login-box {
   width: 350px;
