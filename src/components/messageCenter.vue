@@ -73,36 +73,30 @@
         </el-aside>
 
         <el-main>
-          <div class="demo-collapse">
+          <!-- <div class="demo-collapse">
             <el-collapse v-model="activeNames" @change="handleChange">
               <el-collapse-item title="User Info" name="1">
-                <div>
-                  <el-descriptions title="">
-                    <el-descriptions-item label="Username"
-                      >kooriookami</el-descriptions-item
-                    >
-                    <el-descriptions-item label="Telephone"
-                      >18100000000</el-descriptions-item
-                    >
-                    <el-descriptions-item label="Place"
-                      >Suzhou</el-descriptions-item
-                    >
-                    <el-descriptions-item label="Remarks">
-                      <el-tag size="small">School</el-tag>
-                    </el-descriptions-item>
-                    <el-descriptions-item label="Address"
-                      >No.1188, Wuzhong Avenue, Wuzhong District, Suzhou,
-                      Jiangsu Province</el-descriptions-item
-                    >
-                  </el-descriptions>
-                </div>
-              </el-collapse-item>
-              <el-collapse-item title="Feedback" name="2">
-                <div>1</div>
-                <div>2</div>
+                <el-descriptions title="">
+                  <el-descriptions-item label="Username"
+                    >kooriookami</el-descriptions-item
+                  >
+                  <el-descriptions-item label="Telephone"
+                    >18100000000</el-descriptions-item
+                  >
+                  <el-descriptions-item label="Place"
+                    >Suzhou</el-descriptions-item
+                  >
+                  <el-descriptions-item label="Remarks">
+                    <el-tag size="small">School</el-tag>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="Address"
+                    >No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu
+                    Province</el-descriptions-item
+                  >
+                </el-descriptions>
               </el-collapse-item>
             </el-collapse>
-          </div>
+          </div> -->
 
           <el-table
             :data="
@@ -114,12 +108,25 @@
             "
             :default-sort="{ prop: 'createTime', order: 'descending' }"
             stripe
-            height="250"
             style="width: 100%"
-          >noticeTitle
+            >noticeTitle
+            <el-table-column type="expand">
+              <template #default="props">
+
+                <el-descriptions title="">
+                  <el-descriptions-item label="公告详情">{{
+                    props.row.noticeText
+                  }}</el-descriptions-item>
+                  <el-descriptions-item label="发布管理员代号">
+                    <el-tag size="small">{{
+                      props.row.administratorId
+                    }}</el-tag>
+                  </el-descriptions-item>
+                </el-descriptions>
+              </template>
+            </el-table-column>
             <el-table-column prop="noticeTitle" label="公告标题" />
             <el-table-column prop="createTime" sortable label="发布时间" />
-            <el-table-column prop="administratorId" label="发布管理员代号" />
             <el-table-column align="right">
               <template #header>
                 <el-input
@@ -246,6 +253,7 @@ export default defineComponent({
   Document,
   IconMenu,
   Setting,
+
   setup() {
     const isCollapse = ref(true);
     const handleOpen = (key, keyPath) => {
@@ -266,6 +274,7 @@ export default defineComponent({
       handleChange,
     };
   },
+
   methods: {
     changeIsCollapse() {
       if (this.isCollapse == 0) {
@@ -278,22 +287,35 @@ export default defineComponent({
       console.log(index, row);
     },
   },
+
   data() {
     return {
       tableData: [
         {
-          noticeTitle: "Tom",
-          createTime: "2016-05-03",
           administratorId: 1,
-        },
-        {
-          noticeTitle: "JiRi",
-          createTime: "2016-05-02",
-          administratorId: 2,
+          createTime: "2016-05-03",
+          id: 0,
+          noticeText: "",
+          noticeTitle: "Tom",
+          updateTime: "2016-05-03",
         },
       ],
-      search: '',
+      search: "",
     };
+  },
+
+  mounted: function () {
+    this.axios
+      .get("http://139.224.65.105:9090/api/notice/system", {})
+      .then((response) => {
+        console.log(response.data);
+        if (response.data.code == 200) {
+          this.tableData = response.data.data;
+          return true;
+        } else {
+          return false;
+        }
+      });
   },
 });
 </script>

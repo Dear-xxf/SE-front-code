@@ -1,105 +1,173 @@
-<template>
-  <el-button @click="resetDateFilter">reset date filter</el-button>
-  <el-button @click="clearFilter">reset all filters</el-button>
-  <el-table
-    ref="filterTable"
-    row-key="date"
-    :data="tableData"
-    style="width: 100%"
-  >
-    <el-table-column
-      prop="date"
-      label="Date"
-      sortable
-      width="180"
-      column-key="date"
-      :filters="[
-        { text: '2016-05-01', value: '2016-05-01' },
-        { text: '2016-05-02', value: '2016-05-02' },
-        //{ text: '2016-05-03', value: '2016-05-03' },
-        //{ text: '2016-05-04', value: '2016-05-04' },
-      ]"
-      :filter-method="filterHandler"
-    />
-    <el-table-column prop="name" label="Name" width="180" />
-    <el-table-column prop="address" label="Address" :formatter="formatter" />
-
-    <el-table-column
-      prop="tag"
-      label="Tag"
-      width="100"
-      :filters="[
-        { text: 'Home', value: 'Home' },
-        { text: 'Office', value: 'Office' },
-      ]"
-      :filter-method="filterTag"
-      filter-placement="bottom-end"
-    >
-      <template #default="scope">
-        <el-tag
-          :type="scope.row.tag === 'Home' ? '' : 'success'"
-          disable-transitions
-          >{{ scope.row.tag }}</el-tag
-        >
-      </template>
-    </el-table-column>
-  </el-table>
-</template>
-
 <script>
-export default {
+import { defineComponent } from 'vue'
+import '@fullcalendar/core/vdom' // solve problem with Vite
+import FullCalendar, { CalendarOptions, EventApi, DateSelectArg, EventClickArg } from '@fullcalendar/vue3'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
+import { INITIAL_EVENTS, createEventId } from './event-utils'
+
+const Demo = defineComponent({
+  components: {
+    FullCalendar,
+  },
   data() {
     return {
-      tableData: [
-        {
-          date: "2016-05-03",
-          name: "Tom",
-          address: "No. 189, Grove St, Los Angeles",
-          tag: "Home",
+      calendarOptions: {
+        plugins: [
+          dayGridPlugin,
+          timeGridPlugin,
+          interactionPlugin // needed for dateClick
+        ],
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
-        {
-          date: "2016-05-02",
-          name: "Tom",
-          address: "No. 189, Grove St, Los Angeles",
-          tag: "Office",
-        },
-        {
-          date: "2016-05-04",
-          name: "Tom",
-          address: "No. 189, Grove St, Los Angeles",
-          tag: "Home",
-        },
-        {
-          date: "2016-05-01",
-          name: "Tom",
-          address: "No. 189, Grove St, Los Angeles",
-          tag: "Office",
-        },
-      ],
-    };
+        initialView: 'dayGridMonth',
+        initialEvents: INITIAL_EVENTS, // alternatively, use the `events` setting to fetch from a feed
+        editable: true,
+        selectable: true,
+        selectMirror: true,
+        dayMaxEvents: true,
+        weekends: true,
+        select: this.handleDateSelect,
+        eventClick: this.handleEventClick,
+        eventsSet: this.handleEvents
+        /* you can update a remote database when these fire:
+        eventAdd:
+        eventChange:
+        eventRemove:
+        */
+      },
+      currentEvents: [],
+    }
   },
   methods: {
-    resetDateFilter() {
-      this.$refs.filterTable.clearFilter("date");
+    handleWeekendsToggle() {
+      this.calendarOptions.weekends = !this.calendarOptions.weekends // update a property
     },
-    clearFilter() {
-      this.$refs.filterTable.clearFilter();
+    handleDateSelect(selectInfo) {
+      let title = prompt('Please enter a new title for your event')
+      let calendarApi = selectInfo.view.calendar
+
+      calendarApi.unselect() // clear date selection
+
+      if (title) {
+        calendarApi.addEvent({
+          id: createEventId(),
+          title,
+          start: selectInfo.startStr,
+          end: selectInfo.endStr,
+          allDay: selectInfo.allDay
+        })
+      }
     },
-    formatter(row) {
-      return row.address;
+    handleEventClick(clickInfo) {
+      if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
+        clickInfo.event.remove()
+      }
     },
-    filterTag(value, row) {
-      return row.tag === value;
+    handleEvents(events) {
+      this.currentEvents = events
     },
-    filterHandler(value, row, column) {
-      const property = column["property"];
-      return row[property] === value;
-    },
-  },
-};
+  }
+})
+export default Demo
 </script>
 
+<template>
+  <div class='demo-app'>
+    <div class='demo-app-sidebar'>
+      <div class='demo-app-sidebar-section'>
+        <h2>Instructions</h2>
+        <ul>
+          <li>Select dates and you will be prompted to create a new event</li>
+          <li>Drag, drop, and resize events</li>
+          <li>Click an event to delete it</li>
+        </ul>
+      </div>
+      <div class='demo-app-sidebar-section'>
+        <label>
+          <input
+            type='checkbox'
+            :checked='calendarOptions.weekends'
+            @change='handleWeekendsToggle'
+          />
+          toggle weekends
+        </label>
+      </div>
+      <div class='demo-app-sidebar-section'>
+        <h2>All Events ({{ currentEvents.length }})</h2>
+        <ul>
+          <li v-for='event in currentEvents' :key='event.id'>
+            <b>{{ event.startStr }}</b>
+            <i>{{ event.title }}</i>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class='demo-app-main'>
+      <FullCalendar
+        class='demo-app-calendar'
+        :options='calendarOptions'
+      >
+        <template v-slot:eventContent='arg'>
+          <b>{{ arg.timeText }}</b>
+          <i>{{ arg.event.title }}</i>
+        </template>
+      </FullCalendar>
+    </div>
+  </div>
+</template>
 
+<style lang='css'>
 
-<style lang="scss" scoped>
+h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+ul {
+  margin: 0;
+  padding: 0 0 0 1.5em;
+}
+
+li {
+  margin: 1.5em 0;
+  padding: 0;
+}
+
+b { /* used for event dates/times */
+  margin-right: 3px;
+}
+
+.demo-app {
+  display: flex;
+  min-height: 100%;
+  font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+.demo-app-sidebar {
+  width: 300px;
+  line-height: 1.5;
+  background: #eaf9ff;
+  border-right: 1px solid #d3e2e8;
+}
+
+.demo-app-sidebar-section {
+  padding: 2em;
+}
+
+.demo-app-main {
+  flex-grow: 1;
+  padding: 3em;
+}
+
+.fc { /* the calendar root */
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
 </style>
