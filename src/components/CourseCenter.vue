@@ -91,34 +91,89 @@
                   <br />
                   <span>{{ item.courseInfo.college }}</span>
                 </div>
-                <el-link v-if="item.isActive!=0" :underline="false"><el-tag type="success" size="small">已激活，点击查看详情</el-tag></el-link>
-                <el-link v-if="item.isActive==0" :underline="false"><el-tag type="danger" size="small">未激活，点击进行激活</el-tag></el-link>
+
+                <el-link v-if="item.isActive != 0" :underline="false">
+                  <el-tag type="success" size="small">
+                    已激活，点击查看详情
+                  </el-tag>
+                </el-link>
+
+                <el-button
+                  type="danger"
+                  plain
+                  size="mini"
+                  @click="this.dialogVisible = true"
+                  v-if="item.isActive == 0"
+                >
+                  未激活，点击进行激活
+                </el-button>
               </template>
               <div class="bottom">
                 <p>
                   <el-icon :size="15" style="margin-right: 10px"
                     ><message
                   /></el-icon>
-                  <el-link type="primary" :disabled="item.isActive==0">公告</el-link>
+                  <el-link type="primary" :disabled="item.isActive == 0"
+                    >公告</el-link
+                  >
                   <el-icon
                     :size="15"
                     style="margin-left: 20px; margin-right: 10px"
                     ><document /></el-icon
-                  ><el-link type="success" :disabled="item.isActive==0">作业</el-link>
+                  ><el-link type="success" :disabled="item.isActive == 0"
+                    >作业</el-link
+                  >
                 </p>
                 <p>
                   <el-icon :size="15" style="margin-right: 10px"
                     ><chat-line-round /></el-icon
-                  ><el-link type="info" :disabled="item.isActive==0">讨论</el-link>
+                  ><el-link type="info" :disabled="item.isActive == 0"
+                    >讨论</el-link
+                  >
                   <el-icon
                     :size="15"
                     style="margin-left: 20px; margin-right: 10px"
                     ><folder /></el-icon
-                  ><el-link type="warning" :disabled="item.isActive==0">文件</el-link>
+                  ><el-link type="warning" :disabled="item.isActive == 0"
+                    >文件</el-link
+                  >
                 </p>
               </div>
             </el-card>
           </el-space>
+
+          <el-dialog
+            v-model="dialogVisible"
+            title="Tips"
+            :before-close="handleClose"
+          >
+            <el-form :model="form">
+              <el-form-item label="邮箱" label-width="80px">
+                <el-input
+                  v-model="form.mailbox"
+                  auto-complete="off"
+                  placeholder="请输入你的邮箱"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="验证码" label-width="80px">
+                <el-input
+                  v-model="form.inputCode"
+                  auto-complete="off"
+                  placeholder="请输入验证码"
+                ></el-input>
+              </el-form-item>
+            </el-form>
+
+            <template #footer>
+              <span class="dialog-footer">
+                <el-button @click="dialogVisible = false" style="float: left"
+                  >Cancel</el-button
+                >
+                <el-button type="primary" @click="sendCode()">发送</el-button>
+                <el-button type="primary" @click="activate()">确认</el-button>
+              </span>
+            </template>
+          </el-dialog>
 
           <!-- <el-space wrap>
             <el-card
@@ -319,6 +374,7 @@ import {
   Menu as IconMenu,
   Setting,
 } from "@element-plus/icons";
+import { ElMessageBox } from "element-plus";
 import { defineComponent, ref } from "vue";
 
 export default defineComponent({
@@ -328,14 +384,25 @@ export default defineComponent({
   Setting,
 
   setup() {
+    const dialogVisible = ref(false);
     const isCollapse = ref(true);
     const handleOpen = (key, keyPath) => {
       console.log(key, keyPath);
     };
-    const handleClose = (key, keyPath) => {
-      console.log(key, keyPath);
+    // const handleClose = (key, keyPath) => {
+    //   console.log(key, keyPath);
+    // };
+    const handleClose = (done) => {
+      ElMessageBox.confirm("Are you sure to close this dialog?")
+        .then(() => {
+          done();
+        })
+        .catch(() => {
+          // catch error
+        });
     };
     return {
+      dialogVisible,
       isCollapse,
       handleOpen,
       handleClose,
@@ -350,10 +417,93 @@ export default defineComponent({
         this.isCollapse = 0;
       }
     },
+
+    sendCode() {
+      if (this.form.mailbox == "") {
+        this.$message({
+          message: "邮箱不能为空",
+          type: "error",
+        });
+        return;
+      }
+      this.axios
+        .post(
+          "http://139.224.65.105:9090/api/user/email/send",
+          {},
+          {
+            params: {
+              courseId: this.courseId,
+              studentMailbox: this.form.mailbox,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response.data);
+          if (response.data.code == 200) {
+            this.form.authCode = response.data.data;
+            this.$message({
+              message: response.data.message,
+              type: "success",
+            });
+            return true;
+          } else {
+            this.$message({
+              message: response.data.message,
+              type: "error",
+            });
+            return false;
+          }
+        });
+    },
+
+    activate() {
+      if (this.form.authCode == this.form.inputCode) {
+        this.axios
+          .post(
+            "http://139.224.65.105:9090/api/course/enableActive",
+            {},
+            {
+              params: {
+                courseId: this.courseId,
+                id: this.studentId,
+              },
+            }
+          )
+          .then((response) => {
+            console.log(response.data);
+            if (response.data.code == 200) {
+              this.$message({
+                message: "课程已成功激活！",
+                type: "success",
+              });
+              for (var i = 0; i < this.tableData.length; i++) {
+                if (this.tableData[i].courseId == this.courseId) {
+                  this.tableData[i].isActive = 1;
+                  break;
+                }
+              }
+              this.dialogVisible = false;
+              return true;
+            } else {
+              this.$message({
+                message: response.data.message,
+                type: "error",
+              });
+              return false;
+            }
+          });
+      }
+    },
   },
 
   data() {
     return {
+      form: {
+        mailbox: "",
+        authCode: "",
+        inputCode: "",
+      },
+      courseId: 60006,
       studentId: 200000,
       tableData: [
         {
