@@ -1,58 +1,76 @@
 <template>
-    <div class="MyHome">
-    <el-container style="height:100%;" direction="vertical">
-
+  <div class="MyHome">
+    <el-container style="height: 100%" direction="vertical">
       <el-header>
         <a href="https://www.tongji.edu.cn/">
-        <img src="../assets/tjlogo.png" style="margin:7px auto;">
+          <img src="../assets/tjlogo.png" style="margin: 7px auto" />
         </a>
-        
+
         <span class="title">同济大学实验课程管理</span>
-        <router-link to="/personalInfo"><span class="info">个人信息</span></router-link>
-        <router-link to="/myClass"><span class="class">我的课程</span></router-link>
-        <router-link to="/messageCenter"><span class="message">通知中心</span></router-link>
+        <!-- <router-link :to="{ path: '/personalInfo', query: {id: 200000}}"><span class="info">个人信息</span></router-link> -->
+        <router-link :to="{ path: this.InfoRouter }"
+          ><span class="info">个人信息</span></router-link
+        >
+        <router-link :to="{ path: this.classRouter }"
+          ><span class="class">我的课程</span></router-link
+        >
+        <router-link to="/messageCenter"
+          ><span class="message">通知中心</span></router-link
+        >
         <span class="gang">|</span>
         <div class="profile">
-        <el-avatar :size="size" :fit="fit" :src="circleUrl" @error="errorHandler">
-          <img
-            src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png"
-          />
-        </el-avatar>
+          <el-avatar
+            :size="size"
+            :fit="fit"
+            :src="personalInfo.url"
+            @error="errorHandler"
+          >
+            <img
+              src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png"
+            />
+          </el-avatar>
         </div>
-        
       </el-header>
-        
-      <el-main style="height:300;flex-grow:1;">
-        <br/>
-        <div class="block">
-          <el-carousel height="500px">
-            <el-carousel-item v-for="item in 5" :key="item">
-              <h3 class="small">{{ item }}</h3>
+
+      <el-main style="height: 300; flex-grow: 1">
+        <br />
+        <div style="width: 94%; margin: 0 auto">
+          <el-carousel height="780px">
+            <el-carousel-item v-for="item in picUrl" :key="item">
+              <img :src="item" />
+              <!-- <a  style="cursor: pointer" target="_blank"><img :src=item /> </a> -->
             </el-carousel-item>
           </el-carousel>
         </div>
 
-
         <div class="homeTitle1_bg">
           <h2 class="homeTitle1">
-            <span class="homeTitle1-text" >实验室管理通知</span>
+            <span class="homeTitle1-text">实验室管理通知</span>
           </h2>
-          <br/><br/>
+          <br /><br />
         </div>
 
         <div class="messagetable">
-        <el-table :data="tableData" stripe style="width: 85%" :cellstyle="rowStyle" :header-cell-style="{background:'#eef1f6',color:'#606266'}">
-          <el-table-column prop="title" label="通知" width="400"/>
-          <el-table-column prop="name" label="发布人" />
-          <el-table-column prop="date" label="日期"/>
-        </el-table>
+          <el-table
+            :data="tableData"
+            stripe
+            style="width: 85%"
+            :cellstyle="rowStyle"
+            :header-cell-style="{ background: '#eef1f6', color: '#606266' }"
+          >
+            <el-table-column prop="noticeTitle" label="通知" width="400" />
+            <el-table-column label="发布人">
+              <span>管理员</span>
+            </el-table-column>
+            <el-table-column prop="updateTime" label="日期" />
+          </el-table>
         </div>
         <router-link to="/messageCenter">
-        <span>查看全部通知</span>
-        </router-link> 
+          <span>查看全部通知</span>
+        </router-link>
       </el-main>
-      <br/><br/>
-      <el-footer>footer</el-footer>
+      <br /><br />
+      <!-- <el-footer>footer</el-footer> -->
     </el-container>
   </div>
 </template>
@@ -63,20 +81,20 @@ html,
 body,
 #app,
 .MyHome,
-.el-container{
-  padding:0px;
-  margin:0px;
-  height:100%;
+.el-container {
+  padding: 0px;
+  margin: 0px;
+  height: 100%;
 }
 </style>
 
 // indepedent css
 <style scoped>
-.el-header{
-  background-color:#427fc5;
-  height: 100px!important;
-  position: relative
-} 
+.el-header {
+  background-color: #427fc5;
+  height: 100px !important;
+  position: relative;
+}
 .el-main {
   background-color: white;
   color: var(--el-text-color-primary);
@@ -100,88 +118,88 @@ body > .el-container {
 .el-container:nth-child(7) .el-aside {
   line-height: 320px;
 }
-.profile{
-  position:absolute;
-  top:35%;
+.profile {
+  position: absolute;
+  top: 35%;
   right: 30px;
 }
-.title{
-  color:white;
+.title {
+  color: white;
   font-size: 25px;
   font-family: "Microsoft YaHei";
-  position:absolute;
-  top:35%;
-  left:20%
+  position: absolute;
+  top: 35%;
+  left: 20%;
 }
-.info{
-  color:white;
+.info {
+  color: white;
   font-size: 15px;
   font-family: "Microsoft YaHei";
-  position:absolute;
-  top:40%;
-  left:80%
+  position: absolute;
+  top: 40%;
+  left: 80%;
 }
-.class{
-  color:white;
+.class {
+  color: white;
   font-size: 15px;
   font-family: "Microsoft YaHei";
-  position:absolute;
-  top:40%;
-  left:85%
+  position: absolute;
+  top: 40%;
+  left: 85%;
 }
-.message{
-  color:white;
+.message {
+  color: white;
   font-size: 15px;
   font-family: "Microsoft YaHei";
-  position:absolute;
-  top:40%;
-  left:90%
+  position: absolute;
+  top: 40%;
+  left: 90%;
 }
-.gang{
-  color:white;
+.gang {
+  color: white;
   font-size: 15px;
   font-family: "Microsoft YaHei";
-  position:absolute;
-  top:38%;
-  left:95%
+  position: absolute;
+  top: 38%;
+  left: 95%;
 }
-.homeTitle1_bg{
-    background: none no-repeat;
-    width: 700px;
-    height: 140px;
-    margin:0 auto;
-    background-size: cover; 
-    position: relative;
-    margin-bottom: 20px;
+.homeTitle1_bg {
+  background: none no-repeat;
+  width: 700px;
+  height: 140px;
+  margin: 0 auto;
+  background-size: cover;
+  position: relative;
+  margin-bottom: 20px;
 }
-.homeTitle1{
-    position: absolute;
-    top: 70px;
-    left:50%;
-    width: 600px;
-    margin-left: -300px;
-    text-align: center;
-    color:#427fc5
+.homeTitle1 {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  width: 600px;
+  margin-left: -300px;
+  text-align: center;
+  color: #427fc5;
 }
-.homeTitle1-text:before{
-    display: inline-block;
-    position: relative;
-    top:-5px;
-    right: 30px;
-    content: "";
-    width: 200px;
-    height: 0px;
-    border: 2px solid black;
+.homeTitle1-text:before {
+  display: inline-block;
+  position: relative;
+  top: -5px;
+  right: 30px;
+  content: "";
+  width: 200px;
+  height: 0px;
+  border: 2px solid black;
 }
-.homeTitle1-text:after{
-    display: inline-block;
-    position: relative;
-    top:-5px;
-    left: 30px;
-    content: "";
-    width: 200px;
-    height: 0px;
-    border: 2px solid black;
+.homeTitle1-text:after {
+  display: inline-block;
+  position: relative;
+  top: -5px;
+  left: 30px;
+  content: "";
+  width: 200px;
+  height: 0px;
+  border: 2px solid black;
 }
 
 .el-carousel__item h3 {
@@ -200,29 +218,110 @@ body > .el-container {
 .el-carousel__item:nth-child(2n + 1) {
   background-color: #d3dce6;
 }
-.messagetable{
-  margin:0px 0px 20px 240px;
+.messagetable {
+  margin: 0px 0px 20px 240px;
 }
-
-
-
 </style>
 
 
 
 <script>
-  export default {
-    data () {
-      return {
-        circleUrl: require("../assets/profile2.jpg"),
-        size: "small",
-        tableData: [],
-      }
+export default {
+  setup() {},
+  mounted() {
+    this.id = localStorage.getItem("id");
+    // let token = localStorage.getItem('token')
+    this.userType = localStorage.getItem("type");
+    if (this.userType === "学生") {
+      this.InfoRouter = "/stu/personalInfo";
+      this.classRouter = "/stu/CourseCenter";
+    } else if (this.userType === "管理员") {
+      this.InfoRouter = "/adm/personalInfo";
+      this.classRouter = "/adm/CourseCenter";
+    } else {
+      this.InfoRouter = "/tea/personalInfo";
+      this.classRouter = "/tea/CourseCenter";
+    }
+    console.log(this.InfoRouter);
+    console.log(this.classRouter);
+    console.log(this.userType);
+    const getInfo = () => {
+      this.axios
+        .get("http://139.224.65.105:9090/api/user", {
+          params: {
+            id: this.id,
+            type: this.userType,
+          },
+        })
+        .then((response) => {
+          console.log(response.data.data);
+          this.personalInfo = response.data.data;
+        });
+    };
+    const btn = () => {
+      this.axios
+        .get("http://139.224.65.105:9090/api/notice/system")
+        .then((response) => {
+          for (let i = 0; i < Math.min(5, response.data.data.length); i++) {
+            let item = response.data.data[i];
+            this.tableData.push(item);
+          }
+        })
+        .then(() => {
+          for (let i = 0; i < this.tableData.length; i++) {
+            this.tableData[i].createTime = transferTime(
+              this.tableData[i].createTime
+            );
+            this.tableData[i].updateTime = transferTime(
+              this.tableData[i].updateTime
+            );
+          }
+        });
+      // .catch(function (error) {
+      //      console.log(error);
+      //      })
+    };
+    const transferTime = (time) => {
+      var d = new Date(time);
+      var times =
+        d.getFullYear() +
+        "-" +
+        (d.getMonth() + 1 < 10 ? "0" + (d.getMonth() + 1) : d.getMonth() + 1) +
+        "-" +
+        (d.getDate() < 10 ? "0" + d.getDate() : d.getDate()) +
+        " " +
+        (d.getHours() < 10 ? "0" + d.getHours() : d.getHours()) +
+        ":" +
+        (d.getMinutes() < 10 ? "0" + d.getMinutes() : d.getMinutes()) +
+        ":" +
+        (d.getSeconds() < 10 ? "0" + d.getSeconds() : d.getSeconds());
+      // var times=d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
+      return times;
+    };
+    getInfo();
+    btn();
+  },
+  data() {
+    return {
+      id: "",
+      circleUrl: require("../assets/profile2.jpg"),
+      size: "small",
+      personalInfo: {},
+      userType: "",
+      tableData: [],
+      picUrl: [
+        require("../assets/轮播1.png"),
+        require("../assets/轮播2.png"),
+        require("../assets/轮播3.png"),
+      ],
+      InfoRouter: "",
+      classRouter: "",
+    };
+  },
+  methods: {
+    errorHandler() {
+      return true;
     },
-    methods: {
-      errorHandler() {
-        return true
-      },
-  }
-}
+  },
+};
 </script>

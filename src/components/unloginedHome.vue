@@ -25,10 +25,11 @@
         
       <el-main style="height:300;flex-grow:1;">
         <br/>
-        <div class="block">
-          <el-carousel height="500px">
-            <el-carousel-item v-for="item in 5" :key="item">
-              <h3 class="small">{{ item }}</h3>
+        <div style="width:94%;margin:0 auto">
+          <el-carousel height="780px">
+            <el-carousel-item v-for="item in picUrl" :key="item">
+              <img :src=item />
+              <!-- <a  style="cursor: pointer" target="_blank"><img :src=item /> </a> -->
             </el-carousel-item>
           </el-carousel>
         </div>
@@ -43,9 +44,11 @@
 
         <div class="messagetable">
         <el-table :data="tableData" stripe style="width: 85%" :cellstyle="rowStyle" :header-cell-style="{background:'#eef1f6',color:'#606266'}">
-          <el-table-column prop="title" label="通知" width="400"/>
-          <el-table-column prop="name" label="发布人" />
-          <el-table-column prop="date" label="日期"/>
+          <el-table-column prop="noticeTitle" label="通知" width="400"/>
+          <el-table-column label="发布人">
+              <span>管理员</span>
+          </el-table-column>
+          <el-table-column prop="updateTime" label="日期"/>
         </el-table>
         </div>
         <router-link to="/login">
@@ -53,12 +56,11 @@
         </router-link>         
       </el-main>
       <br/><br/>
-      <el-footer>Footer</el-footer>
+      <!-- <el-footer>Footer</el-footer> -->
     </el-container>
   </div>
 </template>
 
-// indepedent css
 <style scoped>
 .el-footer {
   background-color: #ced2d6;
@@ -209,33 +211,55 @@ body > .el-container {
 
 <script>
   export default {
+    setup(){},
+    mounted(){
+        const btn = () => {
+            this.axios.get('http://139.224.65.105:9090/api/notice/system')
+            .then((response) => {
+                for(let i = 0; i < Math.min(5, response.data.data.length); i++){
+                    let item = response.data.data[i]; 
+                    this.tableData.push(item)
+                }
+                })
+            .then(()=>{
+                for(let i=0; i< this.tableData.length; i++){
+                    this.tableData[i].createTime=transferTime(this.tableData[i].createTime);
+                    this.tableData[i].updateTime=transferTime(this.tableData[i].updateTime);
+                }
+            })
+                // .catch(function (error) {
+                //      console.log(error);
+                //      })
+        }
+        const transferTime = (time)=>{
+            var d = new Date(time);
+            var times=d.getFullYear() + '-' + (d.getMonth() + 1 < 10 ? "0" + (d.getMonth() + 1) : d.getMonth() + 1)
+              + '-' + (d.getDate() < 10 ? "0" + (d.getDate()) : d.getDate()) + ' ' + 
+              (d.getHours() < 10 ? "0" + (d.getHours()) : d.getHours()) + ':'
+              + (d.getMinutes() < 10 ? "0" + (d.getMinutes()) : d.getMinutes())+ ':'
+                + (d.getSeconds() < 10 ? "0" + (d.getSeconds()) : d.getSeconds());
+            // var times=d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
+            return times;
+        }
+        btn()
+    },
     data () {
       return {
         url: "http://139.224.65.105:9090/api",
         circleUrl: require("../assets/unlogined.jpg"),
         size: "small",
         tableData: [],
+        picUrl:[
+          require("../assets/轮播1.png"),
+          require("../assets/轮播2.png"),
+          require("../assets/轮播3.png"),
+        ]
       }
     },
     methods: {
       errorHandler() {
         return true
       },
-    mounted(){
-        const btn = () => {
-            this.axios.get(this.url+'/notice/system')
-            .then((response) => {
-                for(let i = 0; i < Math.max(5, length(response.data)); i++){
-                    let item = response.data.data[i]; 
-                    this.tableData.push(item) 
-                }
-                })
-                .catch(function (error) {
-                     console.log(error);
-                     })
-        }
-        btn()
-    }
   }
 }
 </script>

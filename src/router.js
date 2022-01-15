@@ -1,90 +1,100 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import Login from "./components/login"
+import unloginedHome from "./components/unloginedHome"
 import Home from "./components/Home"
-import personalInfo from "./components/personalInfo"
-import changeStudentInfo from "./components/changeStudentInfo"
-// import myClass from "./components/myClass"
+import stuPersonalInfo from "./components/student/Info/personalInfo"
+import changeStudentInfo from "./components/student/Info/changeStudentInfo"
 import messageCenter from "./components/messageCenter"
-import LabCenter from "./components/LabCenter"
-import CourseCenter from "./components/CourseCenter"
 import Calendar from "./components/Calendar"
-import _Calendar from "./components/_Calendar"
-
-import Temp from "./components/Temp"
-import test from "./components/test"
-import test1 from "./components/test1"
-import dq from "./components/dq_test"
+import CourseCenter from "./components/student/class/CourseCenter"
+import stuclassInfo from "./components/student/class/classInfo"
+import teaclassInfo from "./components/teacher/class/classInfo"
+import LabCenter from "./components/student/class/LabCenter"
+import practice from "./components/practice"
+import teaCreateLab from "./components/teacher/class/createLab"
+import teaPersonalInfo from "./components/teacher/Info/personalInfo"
+import teaCourseCenter from "./components/teacher/class/CourseCenter"
+import teaLabCenter from "./components/teacher/class/LabCenter"
+import admCourseCenter from "./components/administrator/CourseCenter"
 
 const routes = [
     {
-        path:"/",
-        redirect:"/Home"
+        path: "/",
+        redirect: "/unloginedHome"
     },
     {
-        //登录页
-        path:"/login",
-        name:'Login',
+        path: "/login",
         component: Login
     },
     {
-        path:"/Home",
+        path: "/unloginedHome",
+        component: unloginedHome
+    },
+    {
+        path: "/Home",
         component: Home
     },
     {
-        //模板
-        path:"/Temp",
-        component: Temp
+        path: "/stu/personalInfo",
+        component: stuPersonalInfo
     },
     {
-        //系统公告
-        path:"/messageCenter",
+        path: "/messageCenter",
         component: messageCenter
     },
     {
-        path:"/personalInfo",
-        component: personalInfo
-    },
-    {
-        //课程列表
-        path:"/CourseCenter",
-        component: CourseCenter
-    },
-    {
-        //某门课程下的实验列表
-        path:"/LabCenter",
-        component: LabCenter
-    },
-    {
-        //日历服务
-        path:"/Calendar",
-        component: Calendar
-    },
-    {
-        //日历服务
-        path:"/_Calendar",
-        component: _Calendar
-    },
-    {
-        path:"/changeStudentInfo",
+        path: "/stu/changeStudentInfo",
         component: changeStudentInfo
     },
     {
-        path:"/test",
-        component: test
+        path: "/Calendar",
+        component: Calendar
     },
     {
-        path:"/test1",
-        component: test1
+        path: "/stu/classInfo",
+        component: stuclassInfo
     },
     {
-        path:"/dq",
-        component: dq
-    }
+        path: "/stu/CourseCenter",
+        component: CourseCenter
+    },
+    {
+        path: "/tea/classInfo",
+        component: teaclassInfo
+    },
+    {
+        path: "/stu/LabCenter",
+        component: LabCenter
+    },
+    {
+        path: "/practice",
+        component: practice
+    },
+    {
+        path: "/tea/createLab",
+        component: teaCreateLab
+    },
+    {
+        path: "/tea/CourseCenter",
+        component: teaCourseCenter
+    },
+    {
+        path: "/tea/personalInfo",
+        component: teaPersonalInfo
+    },
+    {
+        path: "/tea/LabCenter",
+        component: teaLabCenter
+    },
+    {
+        path: "/adm/CourseCenter",
+        component: admCourseCenter
+    },
 
 ]
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHashHistory(),
     routes: routes
 });
 

@@ -45,7 +45,6 @@
 </template>
 
 <script>
-// import { ElMessage } from 'element-plus'
 export default {
   name: "Login",
   data() {
@@ -85,23 +84,26 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          if (this.form.identity == "学生") {
-            this.form.type = 2;
-          } 
-          else if (this.form.identity == "教师") {
-            this.form.type = 1;
-          } 
-          else if (this.form.identity == "管理员") {
-            this.form.type = 0;
-          }
           this.axios
             .post("http://139.224.65.105:9090/api/user/login", {
               id: this.form.name,
               password: this.form.password,
-              type: this.form.type,
+              type: this.form.identity,
             })
             .then((response) => {
               console.log(response.data);
+              localStorage.removeItem('id');
+              localStorage.removeItem('token');
+              localStorage.removeItem('startTime');
+              localStorage.removeItem('type');
+              localStorage.setItem('id',response.data.data.Info.id);
+              localStorage.setItem('type',this.form.identity);
+              localStorage.setItem('token',response.data.data.token);
+              localStorage.setItem('startTime',new Date().getTime());
+              localStorage.setItem('expire',3600000);
+              console.log(localStorage.getItem('id'))
+              console.log(localStorage.getItem('token'))
+              console.log(localStorage.getItem('startTime'))
               if (response.data.code == 200) {
                 this.$message({
                   message: response.data.message,
@@ -117,6 +119,12 @@ export default {
                 });
                 return false;
               }
+            })
+            .catch(() => {
+              this.$message({
+                  message: "密码错误！",
+                  type: "error",
+                });
             });
         } 
         else {
@@ -133,66 +141,16 @@ export default {
     },
   },
 };
-/*
-	//vue3 setup
-	import {reactive,getCurrentInstance} from 'vue' 
-	const {proxy} = getCurrentInstance()
-	export default {
-		name:'Login',
-		setup(context){
-			//数据
-			let form = reactive({
-				name:'',
-				password:''
-			})
-			let rules = reactive({
-				name: [
-          {
-            required: true,
-            message: '请输入账号',
-            trigger: 'blur',
-          },
-				],
-				password: [
-          {
-            required: true,
-            message: '请输入密码',
-            trigger: 'blur',
-          },
-				],
-			})
-
-			//方法
-			function submitForm(formName) {
-				proxy.$refs[formName].validate((valid) => {
-					if (valid) {
-						alert('submit!')
-					} 
-					else {
-						console.log('error submit!!')
-						return false
-					}
-				})
-    	}
-
-			//返回
-			return{
-				form,
-				onSubmit
-			}
-		}
-	}
-	*/
 </script>
 
 
-<style lang="scss" scoped>
+<style scoped>
 .login-page {
   padding: 20px;
   margin: 0px;
   background-size: 100%;
-  // background-color: #409EFF;
-  // background-image: url('../assets/bush.png');
+  /* background-color: #409EFF; */
+  /* background-image: url('../assets/bush.png'); */
   background-repeat: repeat;
 }
 .login-box {
@@ -202,7 +160,7 @@ export default {
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 0 30px #dcdfe6;
-  // background-color: #9dbbda;
+  /* background-color: #9dbbda; */
 }
 .login-head {
   text-align: center;

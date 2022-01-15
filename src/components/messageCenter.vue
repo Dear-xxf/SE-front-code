@@ -3,7 +3,7 @@
     <el-container>
       <el-header>
         <a href="https://www.tongji.edu.cn/">
-          <img src="../assets/tjlogo.png" />
+          <img src="../assets/tjlogo.png" style="margin: 7px auto" />
         </a>
 
         <span class="title">同济大学实验课程管理</span>
@@ -12,7 +12,7 @@
           <el-avatar
             :size="size"
             :fit="fit"
-            :src="circleUrl"
+            :src="Info.url"
             @error="errorHandler"
           >
             <img
@@ -29,75 +29,79 @@
             default-active="2"
             class="el-menu-vertical-demo"
             :collapse="isCollapse"
-            @open="handleOpen"
-            @close="handleClose"
           >
             <el-sub-menu index="1">
               <template #title>
-                <el-icon><location /></el-icon>
+                <el-icon
+                  ><location style="width: 1.3em; height: 1.3em"
+                /></el-icon>
                 <span>个人信息</span>
               </template>
-              <el-menu-item index="1-1">个人主页</el-menu-item>
-              <el-menu-item index="1-2">修改信息</el-menu-item>
+              <el-menu-item
+                index="1-1"
+                @click="
+                  this.$router.push({
+                    path: this.typeRoute+'/personalInfo',
+                  })
+                "
+                >个人主页</el-menu-item
+              >
+              <el-menu-item
+                index="1-2"
+                v-if="typeRoute==='/stu'"
+                @click="this.$router.push('/stu/changeStudentInfo')"
+                >修改信息</el-menu-item
+              >
             </el-sub-menu>
 
             <el-sub-menu index="2">
               <template #title>
-                <el-icon><collection /></el-icon>
+                <el-icon
+                  ><collection style="width: 1.3em; height: 1.3em"
+                /></el-icon>
                 <span>我的课程</span>
               </template>
-              <el-menu-item index="2-1">课程列表</el-menu-item>
-              <el-menu-item index="2-2">我的课表</el-menu-item>
-              <el-menu-item index="2-3">课程成绩</el-menu-item>
+              <el-menu-item index="2-1" @click="this.$router.push(this.typeRoute+'/CourseCenter')"
+                >课程列表</el-menu-item
+              >
             </el-sub-menu>
 
             <el-sub-menu index="3">
               <template #title>
-                <el-icon><bell-filled /></el-icon>
+                <el-icon
+                  ><bell-filled style="width: 1.3em; height: 1.3em"
+                /></el-icon>
                 <span>通知中心</span>
               </template>
-              <el-menu-item index="3-1">系统公告</el-menu-item>
-              <el-menu-item index="3-2">课程通知</el-menu-item>
+              <el-menu-item
+                index="3-1"
+                @click="this.$router.push('/messageCenter')"
+                >系统公告</el-menu-item
+              >
             </el-sub-menu>
 
-            <el-menu-item index="4">
-              <el-icon><clock /></el-icon>
+            <el-menu-item index="4" @click="this.$router.push('/Calendar')">
+              <el-icon><clock style="width: 1.3em; height: 1.3em" /></el-icon>
               <template #title>日历</template>
             </el-menu-item>
             <br /><br /><br />
             <el-menu-item index="5" @click="changeIsCollapse()">
-              <el-icon><setting /></el-icon>
+              <el-icon><setting style="width: 1.3em; height: 1.3em" /></el-icon>
               <template #title>展开/收缩</template>
             </el-menu-item>
           </el-menu>
         </el-aside>
 
         <el-main>
-          <!-- <div class="demo-collapse">
-            <el-collapse v-model="activeNames" @change="handleChange">
-              <el-collapse-item title="User Info" name="1">
-                <el-descriptions title="">
-                  <el-descriptions-item label="Username"
-                    >kooriookami</el-descriptions-item
-                  >
-                  <el-descriptions-item label="Telephone"
-                    >18100000000</el-descriptions-item
-                  >
-                  <el-descriptions-item label="Place"
-                    >Suzhou</el-descriptions-item
-                  >
-                  <el-descriptions-item label="Remarks">
-                    <el-tag size="small">School</el-tag>
-                  </el-descriptions-item>
-                  <el-descriptions-item label="Address"
-                    >No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu
-                    Province</el-descriptions-item
-                  >
-                </el-descriptions>
-              </el-collapse-item>
-            </el-collapse>
-          </div> -->
-
+          <el-drawer
+            v-model="drawer"
+            v-if="drawer == true"
+            title="公告详情"
+            direction="rtl"
+            :before-close="handleClose"
+          >
+            <em style="float: left">{{ this.noticeText }}</em>
+          </el-drawer>
           <el-table
             :data="
               tableData.filter(
@@ -109,36 +113,23 @@
             :default-sort="{ prop: 'createTime', order: 'descending' }"
             stripe
             style="width: 100%"
-            >noticeTitle
-            <el-table-column type="expand">
+          >
+            <el-table-column prop="noticeTitle" label="公告标题" />
+            <el-table-column prop="createTime" sortable label="发布时间">
               <template #default="props">
-
-                <el-descriptions title="">
-                  <el-descriptions-item label="公告详情">{{
-                    props.row.noticeText
-                  }}</el-descriptions-item>
-                  <el-descriptions-item label="发布管理员代号">
-                    <el-tag size="small">{{
-                      props.row.administratorId
-                    }}</el-tag>
-                  </el-descriptions-item>
-                </el-descriptions>
+                {{ rTime(props.row.createTime) }}
               </template>
             </el-table-column>
-            <el-table-column prop="noticeTitle" label="公告标题" />
-            <el-table-column prop="createTime" sortable label="发布时间" />
             <el-table-column align="right">
               <template #header>
                 <el-input
                   v-model="search"
-                  size="mini"
-                  placeholder="Type to search"
+                  size="small"
+                  placeholder="根据标题进行检索"
                 />
               </template>
-              <template #default="scope">
-                <el-button
-                  size="mini"
-                  @click="handleEdit(scope.$index, scope.row)"
+              <template v-slot="scope">
+                <el-button size="mini" @click="viewDetails(scope.row.noticeText)"
                   >查看详情</el-button
                 >
               </template>
@@ -147,7 +138,7 @@
         </el-main>
       </el-container>
 
-      <el-footer>Footer</el-footer>
+      <!-- <el-footer>Footer</el-footer> -->
     </el-container>
   </div>
 </template>
@@ -157,25 +148,28 @@
 <style scoped>
 .el-header {
   background-color: #427fc5;
-  height: 86px !important;
+  height: 100px !important;
   position: relative;
 }
 .el-aside {
   background-color: rgb(250, 250, 250);
   color: var(--el-text-color-primary);
   text-align: center;
-  height: 700px;
+  position: relative;
+  height: calc(100vh - 100px);
   margin: 0;
   padding: 0;
   display: block;
   width: auto !important;
+  left: 0;
+  top: 0px;
+  bottom: 0;
 }
 .el-main {
   background-color: white;
   color: var(--el-text-color-primary);
   text-align: center;
 }
-
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -190,16 +184,13 @@
 .box-card {
   width: 480px;
 }
-
 body > .el-container {
   margin-bottom: 40px;
 }
-
 .el-container:nth-child(5) .el-aside,
 .el-container:nth-child(6) .el-aside {
   line-height: 260px;
 }
-
 .el-container:nth-child(7) .el-aside {
   line-height: 320px;
 }
@@ -230,7 +221,6 @@ body > .el-container {
   width: 200px;
   min-height: 400px;
 }
-
 .el-footer {
   background-color: #427fc5;
   /* height: 86px !important; */
@@ -247,20 +237,20 @@ import {
   Setting,
 } from "@element-plus/icons";
 import { defineComponent, ref } from "vue";
-
 export default defineComponent({
   Location,
   Document,
   IconMenu,
   Setting,
-
   setup() {
+    const noticeText = ref();
+    const drawer = ref(false);
     const isCollapse = ref(true);
     const handleOpen = (key, keyPath) => {
       console.log(key, keyPath);
     };
-    const handleClose = (key, keyPath) => {
-      console.log(key, keyPath);
+    const handleClose = (done) => {
+      done();
     };
     const activeNames = ref([""]);
     const handleChange = (val) => {
@@ -269,13 +259,26 @@ export default defineComponent({
     return {
       isCollapse,
       handleOpen,
+      drawer,
+      noticeText,
       handleClose,
       activeNames,
       handleChange,
     };
   },
-
   methods: {
+    rTime(date) {
+      var json_date = new Date(date).toJSON();
+      return new Date(new Date(json_date) + 8 * 3600 * 1000)
+        .toISOString()
+        .replace(/T/g, " ")
+        .replace(/\.[\d]{3}Z/, "");
+    },
+    viewDetails(info) {
+      this.noticeText = info;
+      console.log("公告：" + this.noticeText);
+      this.drawer = true;
+    },
     changeIsCollapse() {
       if (this.isCollapse == 0) {
         this.isCollapse = 1;
@@ -287,9 +290,10 @@ export default defineComponent({
       console.log(index, row);
     },
   },
-
   data() {
     return {
+      typeRoute:"",
+      Info: {},
       tableData: [
         {
           administratorId: 1,
@@ -303,8 +307,13 @@ export default defineComponent({
       search: "",
     };
   },
-
   mounted: function () {
+    if(localStorage.getItem('type')==="学生"){
+      this.typeRoute="/stu"
+    }
+    else{
+      this.typeRoute="/tea"
+    }
     this.axios
       .get("http://139.224.65.105:9090/api/notice/system", {})
       .then((response) => {
@@ -316,6 +325,20 @@ export default defineComponent({
           return false;
         }
       });
+    let id = localStorage.getItem("id");
+    console.log(id);
+    const btn = () => {
+      this.axios
+        .get("http://139.224.65.105:9090/api/student/studentId/" + id)
+        .then((response) => {
+          console.log(response.data.data);
+          this.Info = response.data.data;
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    };
+    btn();
   },
 });
 </script>
